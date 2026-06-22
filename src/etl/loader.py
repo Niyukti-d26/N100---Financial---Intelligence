@@ -36,9 +36,18 @@ def load_file(filename):
 
     df = pd.read_excel(filepath, header=header)
 
+    print("\n" + "=" * 70)
+    print(filename)
+    print("Rows before cleaning :", len(df))
+    print("Duplicate rows before cleaning :", df.duplicated().sum())
+
     df = clean_columns(df)
 
+    print("Duplicate rows after clean_columns :", df.duplicated().sum())
+
     df = normalize(df)
+
+    print("Duplicate rows after normalize :", df.duplicated().sum())
 
     return df
 
