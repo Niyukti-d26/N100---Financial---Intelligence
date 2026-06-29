@@ -190,3 +190,51 @@
 2026-06-24 00:24:23,908 | INFO | sectors.xlsx loaded successfully
 2026-06-24 00:24:23,909 | INFO | Loading stock_prices.xlsx
 2026-06-24 00:24:24,448 | INFO | stock_prices.xlsx loaded successfully
+2026-06-29 20:24:40,047 | INFO | Loading analysis.xlsx
+2026-06-29 20:24:40,660 | INFO | analysis.xlsx loaded successfully
+2026-06-29 20:24:40,661 | INFO | Loading balancesheet.xlsx
+2026-06-29 20:24:41,065 | INFO | balancesheet.xlsx loaded successfully
+2026-06-29 20:24:41,066 | INFO | Loading cashflow.xlsx
+2026-06-29 20:24:41,383 | INFO | cashflow.xlsx loaded successfully
+2026-06-29 20:24:41,383 | INFO | Loading companies.xlsx
+2026-06-29 20:24:41,656 | INFO | companies.xlsx loaded successfully
+2026-06-29 20:24:41,656 | INFO | Loading documents.xlsx
+2026-06-29 20:24:41,947 | INFO | documents.xlsx loaded successfully
+2026-06-29 20:24:41,947 | INFO | Loading financial_ratios.xlsx
+2026-06-29 20:24:42,386 | INFO | financial_ratios.xlsx loaded successfully
+2026-06-29 20:24:42,386 | INFO | Loading market_cap.xlsx
+2026-06-29 20:24:42,646 | INFO | market_cap.xlsx loaded successfully
+2026-06-29 20:24:42,646 | INFO | Loading peer_groups.xlsx
+2026-06-29 20:24:42,685 | INFO | peer_groups.xlsx loaded successfully
+2026-06-29 20:24:42,685 | INFO | Loading profitandloss.xlsx
+2026-06-29 20:24:43,110 | INFO | profitandloss.xlsx loaded successfully
+2026-06-29 20:24:43,110 | INFO | Loading prosandcons.xlsx
+2026-06-29 20:24:43,148 | INFO | prosandcons.xlsx loaded successfully
+2026-06-29 20:24:43,148 | INFO | Loading sectors.xlsx
+2026-06-29 20:24:43,226 | INFO | sectors.xlsx loaded successfully
+2026-06-29 20:24:43,227 | INFO | Loading stock_prices.xlsx
+2026-06-29 20:24:44,437 | INFO | stock_prices.xlsx loaded successfully
+2026-06-29 20:42:04,041 | INFO | Loading analysis.xlsx
+2026-06-29 20:42:04,371 | INFO | analysis.xlsx loaded successfully
+2026-06-29 20:42:04,372 | INFO | Loading balancesheet.xlsx
+2026-06-29 20:42:04,485 | INFO | balancesheet.xlsx loaded successfully
+2026-06-29 20:42:04,485 | INFO | Loading cashflow.xlsx
+2026-06-29 20:42:04,570 | INFO | cashflow.xlsx loaded successfully
+2026-06-29 20:42:04,570 | INFO | Loading companies.xlsx
+2026-06-29 20:42:04,597 | INFO | companies.xlsx loaded successfully
+2026-06-29 20:42:04,597 | INFO | Loading documents.xlsx
+2026-06-29 20:42:04,676 | INFO | documents.xlsx loaded successfully
+2026-06-29 20:42:04,676 | INFO | Loading financial_ratios.xlsx
+2026-06-29 20:42:04,801 | INFO | financial_ratios.xlsx loaded successfully
+2026-06-29 20:42:04,802 | INFO | Loading market_cap.xlsx
+2026-06-29 20:42:04,853 | INFO | market_cap.xlsx loaded successfully
+2026-06-29 20:42:04,853 | INFO | Loading peer_groups.xlsx
+2026-06-29 20:42:04,870 | INFO | peer_groups.xlsx loaded successfully
+2026-06-29 20:42:04,870 | INFO | Loading profitandloss.xlsx
+2026-06-29 20:42:05,000 | INFO | profitandloss.xlsx loaded successfully
+2026-06-29 20:42:05,000 | INFO | Loading prosandcons.xlsx
+2026-06-29 20:42:05,015 | INFO | prosandcons.xlsx loaded successfully
+2026-06-29 20:42:05,015 | INFO | Loading sectors.xlsx
+2026-06-29 20:42:05,037 | INFO | sectors.xlsx loaded successfully
+2026-06-29 20:42:05,037 | INFO | Loading stock_prices.xlsx
+2026-06-29 20:42:05,387 | INFO | stock_prices.xlsx loaded successfully
