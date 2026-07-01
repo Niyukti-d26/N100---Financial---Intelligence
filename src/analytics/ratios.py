@@ -103,3 +103,104 @@ def return_on_assets(
 
     return (net_profit / total_assets) * 100
 
+def debt_to_equity(
+    borrowings,
+    equity,
+    reserves,
+):
+    """
+    Debt to Equity Ratio
+    """
+
+    if borrowings == 0:
+        return 0
+
+    denominator = equity + reserves
+
+    if denominator <= 0:
+        return None
+
+    return borrowings / denominator
+
+def high_leverage_flag(
+    debt_to_equity_ratio,
+    broad_sector,
+):
+    """
+    Returns True
+    if company has high leverage.
+    """
+
+    if debt_to_equity_ratio is None:
+        return False
+
+    if broad_sector == "Financials":
+        return False
+
+    return debt_to_equity_ratio > 5
+
+def interest_coverage_ratio(
+    operating_profit,
+    other_income,
+    interest,
+):
+    """
+    Interest Coverage Ratio
+    """
+
+    if interest == 0:
+        return None
+
+    return (
+        operating_profit +
+        other_income
+    ) / interest
+
+def interest_coverage_label(
+    interest,
+):
+    """
+    Returns Debt Free
+    if company has no interest.
+    """
+
+    if interest == 0:
+        return "Debt Free"
+
+    return ""
+
+def icr_warning(
+    interest_coverage,
+):
+    """
+    Warning flag
+    """
+
+    if interest_coverage is None:
+        return False
+
+    return interest_coverage < 1.5
+
+def net_debt(
+    borrowings,
+    investments,
+):
+    """
+    Net Debt
+    """
+
+    return borrowings - investments
+
+def asset_turnover(
+    sales,
+    total_assets,
+):
+    """
+    Asset Turnover Ratio
+    """
+
+    if total_assets == 0:
+        return None
+
+    return sales / total_assets
+
