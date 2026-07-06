@@ -22,7 +22,7 @@ for table in tables:
     duplicates = df[
         df.duplicated(
             subset=["company_id", "year"],
-            keep=False,
+            keep="first",
         )
     ]
 

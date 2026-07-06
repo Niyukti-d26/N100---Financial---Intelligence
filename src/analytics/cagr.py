@@ -2,10 +2,6 @@ from math import pow
 
 
 def calculate_cagr(start_value, end_value, years):
-    """
-    Returns:
-    (cagr_value, flag)
-    """
 
     if years <= 0:
         return None, "INSUFFICIENT"
@@ -18,7 +14,9 @@ def calculate_cagr(start_value, end_value, years):
 
     if start_value > 0 and end_value > 0:
 
-        cagr = (pow(end_value / start_value, 1 / years) - 1) * 100
+        cagr = (
+            (end_value / start_value) ** (1 / years) - 1
+        ) * 100
 
         return round(cagr, 2), None
 
@@ -31,4 +29,4 @@ def calculate_cagr(start_value, end_value, years):
     if start_value < 0 and end_value < 0:
         return None, "BOTH_NEGATIVE"
 
-    return None, "INSUFFICIENT"
+    return None, "UNKNOWN"
