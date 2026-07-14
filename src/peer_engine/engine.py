@@ -87,7 +87,7 @@ class PeerEngine:
 
         df[percentile_column] = (
         df.groupby("peer_group_name")[metric]
-        .rank(method="average", pct=True, ascending=True)
+        .rank(method="average", pct=True, ascending=False)
         * 100
     )
 
@@ -128,7 +128,7 @@ class PeerEngine:
         .rank(
             method="average",
             pct=True,
-            ascending=ascending,
+            ascending=False,
         )
         * 100
     )
