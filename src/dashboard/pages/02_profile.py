@@ -1,5 +1,11 @@
-import pandas as pd
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.append(str(ROOT))
+
 import streamlit as st
+import pandas as pd
 import plotly.express as px
 
 from dashboard.utils.db import (
@@ -17,7 +23,8 @@ selected_company = st.selectbox(
 )
 
 company = companies[
-    companies["company_name"] == selected_company
+    companies["company_name"]
+    == selected_company
 ]
 
 if company.empty:
@@ -44,19 +51,21 @@ else:
             row["roce_percentage"]
         )
 
-    st.write("### About Company")
+    st.divider()
 
-    st.write(
-        row["about_company"]
-        if pd.notna(row["about_company"])
-        else "No description available"
-    )
+    st.subheader("About Company")
 
-    if pd.notna(row["website"]):
+    about_text = row["about_company"]
 
-        st.write(
-            f"Website: {row['website']}"
-        )
+    if pd.isna(about_text):
+        about_text = "No description available"
+
+    st.write(about_text)
+
+    website = row["website"]
+
+    if pd.notna(website):
+        st.write(f"Website: {website}")
 
     ticker = row["id"]
 
@@ -64,27 +73,33 @@ else:
 
     if not pl.empty:
 
-        fig1 = px.bar(
-            pl.dropna(subset=["year"]),
+        pl = pl.dropna(
+            subset=["year"]
+        )
+
+        st.divider()
+
+        revenue_fig = px.bar(
+            pl,
             x="year",
             y="sales",
             title="Revenue Trend"
         )
 
         st.plotly_chart(
-            fig1,
+            revenue_fig,
             use_container_width=True
         )
 
-        fig2 = px.line(
-            pl.dropna(subset=["year"]),
+        profit_fig = px.line(
+            pl,
             x="year",
             y="net_profit",
             title="Net Profit Trend"
         )
 
         st.plotly_chart(
-            fig2,
+            profit_fig,
             use_container_width=True
         )
 

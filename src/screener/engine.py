@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from src.config.settings import DATABASE_PATH
+from config.settings import DATABASE_PATH
 
 CONFIG_PATH = (
     Path(__file__).resolve().parent.parent

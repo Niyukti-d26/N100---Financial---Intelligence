@@ -93,3 +93,19 @@ def get_pl(ticker):
     conn.close()
 
     return df
+
+@st.cache_data(ttl=600)
+def get_screener_data():
+
+    conn = sqlite3.connect(DATABASE_PATH)
+
+    query = """
+    SELECT *
+    FROM financial_ratios
+    """
+
+    df = pd.read_sql(query, conn)
+
+    conn.close()
+
+    return df
