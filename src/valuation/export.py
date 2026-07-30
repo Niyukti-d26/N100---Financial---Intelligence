@@ -13,16 +13,11 @@ output_cols = [
     "dividend_yield_pct",
     "net_cash_flow",
     "fcf_yield_pct",
-    "valuation_label"
+    "valuation_label",
 ]
 
-df[output_cols].to_excel(
-    "valuation_summary.xlsx",
-    index=False
-)
+df[output_cols].to_excel("valuation_summary.xlsx", index=False)
 
-print(
-    "valuation_summary.xlsx generated successfully"
-)
+print("valuation_summary.xlsx generated successfully")
 
 engine.close()

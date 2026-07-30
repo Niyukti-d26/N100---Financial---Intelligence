@@ -1,11 +1,12 @@
 import sqlite3
+
 import pandas as pd
 
 from src.config.settings import DATABASE_PATH
 
 
 def run_day32():
-
+    """Function: run_day32"""
     conn = sqlite3.connect(DATABASE_PATH)
 
     # --------------------------------------------------
@@ -26,17 +27,14 @@ def run_day32():
 
     latest_year = capital["year"].max()
 
-    latest = capital[
-        capital["year"] == latest_year
-    ].copy()
+    latest = capital[capital["year"] == latest_year].copy()
 
     # --------------------------------------------------
     # 1. Distribution Summary
     # --------------------------------------------------
 
     distribution = (
-        latest
-        .groupby("capital_allocation_label")
+        latest.groupby("capital_allocation_label")
         .size()
         .reset_index(name="count")
         .sort_values("count", ascending=False)
@@ -47,10 +45,7 @@ def run_day32():
         index=False,
     )
 
-    print(
-        "Distribution Summary Rows:",
-        len(distribution)
-    )
+    print("Distribution Summary Rows:", len(distribution))
 
     # --------------------------------------------------
     # 2. Pattern Changes
@@ -60,12 +55,7 @@ def run_day32():
 
     for company in capital["company_id"].unique():
 
-        company_df = (
-            capital[
-                capital["company_id"] == company
-            ]
-            .sort_values("year")
-        )
+        company_df = capital[capital["company_id"] == company].sort_values("year")
 
         if len(company_df) < 2:
             continue
@@ -81,10 +71,8 @@ def run_day32():
             changes.append(
                 {
                     "company_id": company,
-                    "old_pattern":
-                        previous_row["capital_allocation_label"],
-                    "new_pattern":
-                        latest_row["capital_allocation_label"],
+                    "old_pattern": previous_row["capital_allocation_label"],
+                    "new_pattern": latest_row["capital_allocation_label"],
                 }
             )
 
@@ -95,22 +83,15 @@ def run_day32():
         index=False,
     )
 
-    print(
-        "Pattern Changes:",
-        len(changes_df)
-    )
+    print("Pattern Changes:", len(changes_df))
 
     # --------------------------------------------------
     # 3. Update Cashflow Intelligence
     # --------------------------------------------------
 
-    cashflow_file = (
-        "data/output/cashflow_intelligence.xlsx"
-    )
+    cashflow_file = "data/output/cashflow_intelligence.xlsx"
 
-    cashflow_df = pd.read_excel(
-        cashflow_file
-    )
+    cashflow_df = pd.read_excel(cashflow_file)
 
     latest_labels = latest[
         [
@@ -121,34 +102,26 @@ def run_day32():
 
     # remove old column if already present
     if "capital_allocation_label" in cashflow_df.columns:
-         cashflow_df = cashflow_df.drop(
-        columns=["capital_allocation_label"]
-    )
+        cashflow_df = cashflow_df.drop(columns=["capital_allocation_label"])
 
     if "capital_allocation_label_x" in cashflow_df.columns:
-         cashflow_df = cashflow_df.drop(
-        columns=["capital_allocation_label_x"]
-    )
+        cashflow_df = cashflow_df.drop(columns=["capital_allocation_label_x"])
 
     if "capital_allocation_label_y" in cashflow_df.columns:
-        cashflow_df = cashflow_df.drop(
-        columns=["capital_allocation_label_y"]
-    )
+        cashflow_df = cashflow_df.drop(columns=["capital_allocation_label_y"])
 
     cashflow_df = cashflow_df.merge(
-       latest_labels,
-    on="company_id",
-    how="left",
-)
+        latest_labels,
+        on="company_id",
+        how="left",
+    )
 
     cashflow_df.to_excel(
         cashflow_file,
         index=False,
     )
 
-    print(
-        "Updated cashflow_intelligence.xlsx"
-    )
+    print("Updated cashflow_intelligence.xlsx")
 
     conn.close()
 

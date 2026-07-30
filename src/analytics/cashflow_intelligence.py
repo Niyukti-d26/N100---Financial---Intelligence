@@ -14,25 +14,13 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 conn = sqlite3.connect(DB_PATH)
 
-ratios = pd.read_sql(
-    "SELECT * FROM financial_ratios",
-    conn
-)
+ratios = pd.read_sql("SELECT * FROM financial_ratios", conn)
 
-cashflow = pd.read_sql(
-    "SELECT * FROM cashflow",
-    conn
-)
+cashflow = pd.read_sql("SELECT * FROM cashflow", conn)
 
-balancesheet = pd.read_sql(
-    "SELECT * FROM balancesheet",
-    conn
-)
+balancesheet = pd.read_sql("SELECT * FROM balancesheet", conn)
 
-sectors = pd.read_sql(
-    "SELECT * FROM sectors",
-    conn
-)
+sectors = pd.read_sql("SELECT * FROM sectors", conn)
 
 conn.close()
 
@@ -45,27 +33,15 @@ companies = ratios["company_id"].unique()
 
 for company in companies:
 
-    r = ratios[
-        ratios["company_id"] == company
-    ].copy()
+    r = ratios[ratios["company_id"] == company].copy()
 
-    cf = cashflow[
-        cashflow["company_id"] == company
-    ].copy()
+    cf = cashflow[cashflow["company_id"] == company].copy()
 
-    bs = balancesheet[
-        balancesheet["company_id"] == company
-    ].copy()
+    bs = balancesheet[balancesheet["company_id"] == company].copy()
 
-    sector_row = sectors[
-        sectors["company_id"] == company
-    ]
+    sector_row = sectors[sectors["company_id"] == company]
 
-    sector = (
-        sector_row["broad_sector"].iloc[0]
-        if not sector_row.empty
-        else "Unknown"
-    )
+    sector = sector_row["broad_sector"].iloc[0] if not sector_row.empty else "Unknown"
 
     r = r.dropna(subset=["year"])
     cf = cf.dropna(subset=["year"])
@@ -75,20 +51,11 @@ for company in companies:
     cf = cf.sort_values("year")
     bs = bs.sort_values("year")
 
-    r = r.drop_duplicates(
-        subset=["year"],
-        keep="last"
-    )
+    r = r.drop_duplicates(subset=["year"], keep="last")
 
-    cf = cf.drop_duplicates(
-        subset=["year"],
-        keep="last"
-    )
+    cf = cf.drop_duplicates(subset=["year"], keep="last")
 
-    bs = bs.drop_duplicates(
-        subset=["year"],
-        keep="last"
-    )
+    bs = bs.drop_duplicates(subset=["year"], keep="last")
 
     if r.empty:
         continue
@@ -99,24 +66,13 @@ for company in companies:
     # CFO QUALITY
     # --------------------------------
 
-    if (
-        "cash_from_operations_cr" in r.columns
-        and len(r) > 0
-    ):
+    if "cash_from_operations_cr" in r.columns and len(r) > 0:
 
-        cfo_pat = (
-            r["cash_from_operations_cr"]
-            /
-            r["free_cash_flow_cr"].replace(
-                0,
-                np.nan
-            )
+        cfo_pat = r["cash_from_operations_cr"] / r["free_cash_flow_cr"].replace(
+            0, np.nan
         )
 
-        cfo_quality_score = round(
-            cfo_pat.mean(skipna=True),
-            2
-        )
+        cfo_quality_score = round(cfo_pat.mean(skipna=True), 2)
 
     else:
 
@@ -138,25 +94,15 @@ for company in companies:
     # CAPEX INTENSITY
     # --------------------------------
 
-    capex_intensity = latest_ratio.get(
-        "capex_pct",
-        np.nan
-    )
+    capex_intensity = latest_ratio.get("capex_pct", np.nan)
 
-    capex_label = latest_ratio.get(
-        "capex_label",
-        "Unknown"
-    )
+    capex_label = latest_ratio.get("capex_label", "Unknown")
 
     # --------------------------------
     # FCF CAGR
     # --------------------------------
 
-    fcf_series = (
-        r["free_cash_flow_cr"]
-        .dropna()
-        .tail(5)
-    )
+    fcf_series = r["free_cash_flow_cr"].dropna().tail(5)
 
     fcf_cagr = np.nan
 
@@ -169,24 +115,13 @@ for company in companies:
 
             years = len(fcf_series) - 1
 
-            fcf_cagr = round(
-                (
-                    (last / first)
-                    ** (1 / years)
-                    - 1
-                )
-                * 100,
-                2
-            )
+            fcf_cagr = round(((last / first) ** (1 / years) - 1) * 100, 2)
 
     # --------------------------------
     # FCF CONVERSION
     # --------------------------------
 
-    fcf_conversion = latest_ratio.get(
-        "fcf_conversion_pct",
-        np.nan
-    )
+    fcf_conversion = latest_ratio.get("fcf_conversion_pct", np.nan)
 
     # --------------------------------
     # DISTRESS FLAG
@@ -199,29 +134,16 @@ for company in companies:
 
         latest_cf = cf.iloc[-1]
 
-        cfo = latest_cf.get(
-            "operating_activity",
-            0
-        )
+        cfo = latest_cf.get("operating_activity", 0)
 
-        cff = latest_cf.get(
-            "financing_activity",
-            0
-        )
+        cff = latest_cf.get("financing_activity", 0)
 
-        if (
-            cfo < 0
-            and cff > 0
-        ):
+        if cfo < 0 and cff > 0:
 
             distress_flag = True
 
             distress_records.append(
-                {
-                    "company_id": company,
-                    "cfo_value": cfo,
-                    "cff_value": cff
-                }
+                {"company_id": company, "cfo_value": cfo, "cff_value": cff}
             )
 
     # --------------------------------
@@ -230,25 +152,17 @@ for company in companies:
 
     deleveraging_flag = False
 
-    if (
-        len(bs) >= 2
-        and not cf.empty
-    ):
+    if len(bs) >= 2 and not cf.empty:
 
         latest_cf = cf.iloc[-1]
 
-        current_borrowings = (
-            bs.iloc[-1]["borrowings"]
-        )
+        current_borrowings = bs.iloc[-1]["borrowings"]
 
-        previous_borrowings = (
-            bs.iloc[-2]["borrowings"]
-        )
+        previous_borrowings = bs.iloc[-2]["borrowings"]
 
         if (
             latest_cf["financing_activity"] < 0
-            and current_borrowings
-            < previous_borrowings
+            and current_borrowings < previous_borrowings
         ):
 
             deleveraging_flag = True
@@ -259,78 +173,45 @@ for company in companies:
 
     if distress_flag:
 
-        capital_allocation = (
-            "Distress Signal"
-        )
+        capital_allocation = "Distress Signal"
 
     elif deleveraging_flag:
 
-        capital_allocation = (
-            "Deleveraging"
-        )
+        capital_allocation = "Deleveraging"
 
     elif capex_intensity > 8:
 
-        capital_allocation = (
-            "Reinvestor"
-        )
+        capital_allocation = "Reinvestor"
 
     else:
 
-        capital_allocation = (
-            "Balanced"
-        )
+        capital_allocation = "Balanced"
 
     records.append(
         {
             "company_id": company,
             "sector": sector,
-            "cfo_quality_score":
-                cfo_quality_score,
-            "cfo_quality_label":
-                cfo_quality_label,
-            "capex_intensity_pct":
-                capex_intensity,
-            "capex_label":
-                capex_label,
-            "fcf_cagr_5yr":
-                fcf_cagr,
-            "fcf_conversion_pct":
-                fcf_conversion,
-            "distress_flag":
-                distress_flag,
-            "deleveraging_flag":
-                deleveraging_flag,
-            "capital_allocation_label":
-                capital_allocation,
+            "cfo_quality_score": cfo_quality_score,
+            "cfo_quality_label": cfo_quality_label,
+            "capex_intensity_pct": capex_intensity,
+            "capex_label": capex_label,
+            "fcf_cagr_5yr": fcf_cagr,
+            "fcf_conversion_pct": fcf_conversion,
+            "distress_flag": distress_flag,
+            "deleveraging_flag": deleveraging_flag,
+            "capital_allocation_label": capital_allocation,
         }
     )
 
 
 cashflow_intelligence = pd.DataFrame(records)
 
-cashflow_intelligence.to_excel(
-    OUTPUT_DIR /
-    "cashflow_intelligence.xlsx",
-    index=False
-)
+cashflow_intelligence.to_excel(OUTPUT_DIR / "cashflow_intelligence.xlsx", index=False)
 
-distress_df = pd.DataFrame(
-    distress_records
-)
+distress_df = pd.DataFrame(distress_records)
 
-distress_df.to_csv(
-    OUTPUT_DIR /
-    "distress_alerts.csv",
-    index=False
-)
+distress_df.to_csv(OUTPUT_DIR / "distress_alerts.csv", index=False)
 
-print(
-    "Cashflow Intelligence Rows:",
-    len(cashflow_intelligence)
-)
+print("Cashflow Intelligence Rows:", len(cashflow_intelligence))
 
-print(
-    "Distress Alerts:",
-    len(distress_df)
-)
+print("Distress Alerts:", len(distress_df))

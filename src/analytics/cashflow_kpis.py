@@ -1,12 +1,15 @@
-import math
+
+
 def free_cash_flow(
     operating_activity,
     investing_activity,
 ):
+    """Function: free_cash_flow"""
     return operating_activity + investing_activity
 
-def cfo_quality_score(cfo, pat):
 
+def cfo_quality_score(cfo, pat):
+    """Function: cfo_quality_score"""
     if pat == 0:
         return None
 
@@ -20,11 +23,12 @@ def cfo_quality_score(cfo, pat):
 
     return "Accrual Risk"
 
+
 def capex_intensity(
     investing_activity,
     sales,
 ):
-
+    """Function: capex_intensity"""
     if sales == 0:
         return None, None
 
@@ -39,13 +43,14 @@ def capex_intensity(
     else:
         label = "Capital Intensive"
 
-    return round(pct,2), label
+    return round(pct, 2), label
+
 
 def fcf_conversion_rate(
     free_cash_flow,
     operating_profit,
 ):
-
+    """Function: fcf_conversion_rate"""
     if operating_profit == 0:
         return None
 
@@ -54,13 +59,14 @@ def fcf_conversion_rate(
         2,
     )
 
+
 def capital_allocation_pattern(
     cfo,
     cfi,
     cff,
     quality=None,
 ):
-
+    """Function: capital_allocation_pattern"""
     pattern = (
         "+" if cfo >= 0 else "-",
         "+" if cfi >= 0 else "-",
@@ -68,30 +74,18 @@ def capital_allocation_pattern(
     )
 
     mapping = {
-
-        ("+","-","-"): "Reinvestor",
-
-        ("+","+","-"): "Liquidating Assets",
-
-        ("-","+","+"): "Distress Signal",
-
-        ("-","-","+"): "Growth Funded by Debt",
-
-        ("+","+","+"): "Cash Accumulator",
-
-        ("-","-","-"): "Pre-Revenue",
-
-        ("+","-","+"): "Mixed",
-
+        ("+", "-", "-"): "Reinvestor",
+        ("+", "+", "-"): "Liquidating Assets",
+        ("-", "+", "+"): "Distress Signal",
+        ("-", "-", "+"): "Growth Funded by Debt",
+        ("+", "+", "+"): "Cash Accumulator",
+        ("-", "-", "-"): "Pre-Revenue",
+        ("+", "-", "+"): "Mixed",
     }
 
-    label = mapping.get(pattern,"Unknown")
+    label = mapping.get(pattern, "Unknown")
 
-    if (
-        pattern == ("+","-","-")
-        and quality == "High Quality"
-    ):
+    if pattern == ("+", "-", "-") and quality == "High Quality":
         label = "Shareholder Returns"
 
     return label
-

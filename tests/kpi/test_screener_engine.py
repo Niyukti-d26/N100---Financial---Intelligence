@@ -26,22 +26,22 @@ def test_engine_load():
         "dividend_yield_pct",
         "sales",
         "net_profit",
-        "composite_quality_score"
+        "composite_quality_score",
     ]
 
     for column in required_columns:
         assert column in df.columns
 
+
 def test_roe_filter():
-        engine = ScreenerEngine()
+    engine = ScreenerEngine()
 
-        df = engine.filter_roe()
+    df = engine.filter_roe()
 
-        assert len(df) > 0
+    assert len(df) > 0
 
-        assert (
-        df["return_on_equity_pct"] >= 15
-        ).all()
+    assert (df["return_on_equity_pct"] >= 15).all()
+
 
 def test_debt_to_equity_filter():
 
@@ -49,13 +49,10 @@ def test_debt_to_equity_filter():
 
     df = engine.filter_debt_to_equity()
 
-    non_financials = df[
-        df["broad_sector"] != "Financials"
-    ]
+    non_financials = df[df["broad_sector"] != "Financials"]
 
-    assert (
-        non_financials["debt_to_equity"] <= 1
-    ).all()
+    assert (non_financials["debt_to_equity"] <= 1).all()
+
 
 def test_free_cash_flow_filter():
 
@@ -65,9 +62,8 @@ def test_free_cash_flow_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["free_cash_flow_cr"] >= 0
-    ).all()
+    assert (df["free_cash_flow_cr"] >= 0).all()
+
 
 def test_revenue_cagr_filter():
 
@@ -77,9 +73,8 @@ def test_revenue_cagr_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["revenue_cagr_5yr"] >= 10
-    ).all()
+    assert (df["revenue_cagr_5yr"] >= 10).all()
+
 
 def test_pat_cagr_filter():
 
@@ -89,9 +84,8 @@ def test_pat_cagr_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["pat_cagr_5yr"] >= 10
-    ).all()
+    assert (df["pat_cagr_5yr"] >= 10).all()
+
 
 def test_operating_profit_margin_filter():
 
@@ -101,9 +95,8 @@ def test_operating_profit_margin_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["operating_profit_margin_pct"] >= 15
-    ).all()
+    assert (df["operating_profit_margin_pct"] >= 15).all()
+
 
 def test_pe_ratio_filter():
 
@@ -113,9 +106,8 @@ def test_pe_ratio_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["pe_ratio"] <= 20
-    ).all()
+    assert (df["pe_ratio"] <= 20).all()
+
 
 def test_pb_ratio_filter():
 
@@ -125,9 +117,8 @@ def test_pb_ratio_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["pb_ratio"] <= 3
-    ).all()
+    assert (df["pb_ratio"] <= 3).all()
+
 
 def test_dividend_yield_filter():
 
@@ -137,9 +128,8 @@ def test_dividend_yield_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["dividend_yield_pct"] >= 1
-    ).all()
+    assert (df["dividend_yield_pct"] >= 1).all()
+
 
 def test_interest_coverage_filter():
 
@@ -149,9 +139,8 @@ def test_interest_coverage_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["interest_coverage"] >= 3
-    ).all()
+    assert (df["interest_coverage"] >= 3).all()
+
 
 def test_market_cap_filter():
 
@@ -161,9 +150,8 @@ def test_market_cap_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["market_cap_crore"] >= 10000
-    ).all()
+    assert (df["market_cap_crore"] >= 10000).all()
+
 
 def test_net_profit_filter():
 
@@ -173,9 +161,8 @@ def test_net_profit_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["net_profit"] >= 1000
-    ).all()
+    assert (df["net_profit"] >= 1000).all()
+
 
 def test_eps_cagr_filter():
 
@@ -185,9 +172,8 @@ def test_eps_cagr_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["eps_cagr_5yr"] >= 10
-    ).all()
+    assert (df["eps_cagr_5yr"] >= 10).all()
+
 
 def test_asset_turnover_filter():
 
@@ -197,9 +183,8 @@ def test_asset_turnover_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["asset_turnover"] >= 0.5
-    ).all()
+    assert (df["asset_turnover"] >= 0.5).all()
+
 
 def test_sales_filter():
 
@@ -209,6 +194,4 @@ def test_sales_filter():
 
     assert len(df) > 0
 
-    assert (
-        df["sales"] >= 5000
-    ).all()
+    assert (df["sales"] >= 5000).all()

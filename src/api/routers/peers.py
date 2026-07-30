@@ -1,19 +1,15 @@
-from fastapi import APIRouter, HTTPException
 import sqlite3
+
+from fastapi import APIRouter, HTTPException
 
 from src.config.settings import DATABASE_PATH
 
-
-router = APIRouter(
-    tags=["Peers"]
-)
+router = APIRouter(tags=["Peers"])
 
 
 def get_connection():
-
-    conn = sqlite3.connect(
-        DATABASE_PATH
-    )
+    """Function: get_connection"""
+    conn = sqlite3.connect(DATABASE_PATH)
 
     conn.row_factory = sqlite3.Row
 
@@ -22,7 +18,7 @@ def get_connection():
 
 @router.get("/peers/{group_name}")
 def get_peers(group_name: str):
-
+    """Function: get_peers"""
     conn = get_connection()
 
     rows = conn.execute(
@@ -37,33 +33,24 @@ def get_peers(group_name: str):
         ON p.company_id = c.id
         WHERE p.peer_group_name = ?
         """,
-        (group_name,)
+        (group_name,),
     ).fetchall()
 
     conn.close()
 
     if not rows:
 
-        raise HTTPException(
-            status_code=404,
-            detail="Peer group not found"
-        )
+        raise HTTPException(status_code=404, detail="Peer group not found")
 
-    return {
-        "peer_group": group_name,
-        "companies": [
-            dict(r)
-            for r in rows
-        ]
-    }
+    return {"peer_group": group_name, "companies": [dict(r) for r in rows]}
+
 
 @router.get("/companies/{ticker}/peers/compare")
 def compare_company_peers(ticker: str):
-
+    """Function: compare_company_peers"""
     conn = get_connection()
 
     ticker = ticker.upper()
-
 
     # Get company details
     company = conn.execute(
@@ -74,19 +61,14 @@ def compare_company_peers(ticker: str):
         FROM companies
         WHERE id = ?
         """,
-        (ticker,)
+        (ticker,),
     ).fetchone()
-
 
     if not company:
 
         conn.close()
 
-        raise HTTPException(
-            status_code=404,
-            detail="Company not found"
-        )
-
+        raise HTTPException(status_code=404, detail="Company not found")
 
     # Find peer group
     peer_group = conn.execute(
@@ -97,22 +79,16 @@ def compare_company_peers(ticker: str):
         WHERE company_id = ?
         LIMIT 1
         """,
-        (ticker,)
+        (ticker,),
     ).fetchone()
-
 
     if not peer_group:
 
         conn.close()
 
-        raise HTTPException(
-            status_code=404,
-            detail="Peer group not found"
-        )
-
+        raise HTTPException(status_code=404, detail="Peer group not found")
 
     group_name = peer_group["peer_group_name"]
-
 
     # Get peer companies
     peers = conn.execute(
@@ -125,19 +101,14 @@ def compare_company_peers(ticker: str):
             ON p.company_id = c.id
         WHERE p.peer_group_name = ?
         """,
-        (group_name,)
+        (group_name,),
     ).fetchall()
 
-
     conn.close()
-
 
     return {
         "company_id": ticker,
         "company_name": company["company_name"],
         "peer_group": group_name,
-        "peer_companies": [
-            dict(row)
-            for row in peers
-        ]
+        "peer_companies": [dict(row) for row in peers],
     }

@@ -4,28 +4,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT))
 
-import streamlit as st
 import pandas as pd
 import plotly.express as px
+import streamlit as st
 
-from dashboard.utils.db import (
-    get_companies,
-    get_pl
-)
+from dashboard.utils.db import get_companies, get_pl
 
 st.title("🏢 Company Profile")
 
 companies = get_companies()
 
-selected_company = st.selectbox(
-    "Select Company",
-    companies["company_name"]
-)
+selected_company = st.selectbox("Select Company", companies["company_name"])
 
-company = companies[
-    companies["company_name"]
-    == selected_company
-]
+company = companies[companies["company_name"] == selected_company]
 
 if company.empty:
 
@@ -40,16 +31,10 @@ else:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.metric(
-            "ROE %",
-            row["roe_percentage"]
-        )
+        st.metric("ROE %", row["roe_percentage"])
 
     with col2:
-        st.metric(
-            "ROCE %",
-            row["roce_percentage"]
-        )
+        st.metric("ROCE %", row["roce_percentage"])
 
     st.divider()
 
@@ -73,38 +58,18 @@ else:
 
     if not pl.empty:
 
-        pl = pl.dropna(
-            subset=["year"]
-        )
+        pl = pl.dropna(subset=["year"])
 
         st.divider()
 
-        revenue_fig = px.bar(
-            pl,
-            x="year",
-            y="sales",
-            title="Revenue Trend"
-        )
+        revenue_fig = px.bar(pl, x="year", y="sales", title="Revenue Trend")
 
-        st.plotly_chart(
-            revenue_fig,
-            use_container_width=True
-        )
+        st.plotly_chart(revenue_fig, use_container_width=True)
 
-        profit_fig = px.line(
-            pl,
-            x="year",
-            y="net_profit",
-            title="Net Profit Trend"
-        )
+        profit_fig = px.line(pl, x="year", y="net_profit", title="Net Profit Trend")
 
-        st.plotly_chart(
-            profit_fig,
-            use_container_width=True
-        )
+        st.plotly_chart(profit_fig, use_container_width=True)
 
     else:
 
-        st.warning(
-            f"No P&L data found for {ticker}"
-        )
+        st.warning(f"No P&L data found for {ticker}")

@@ -1,40 +1,32 @@
-from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import FileResponse
-import sqlite3
 import os
+import sqlite3
+
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 
 from src.config.settings import DATABASE_PATH
 
-
-router = APIRouter(
-    tags=["Companies"]
-)
-
+router = APIRouter(tags=["Companies"])
 
 
 def get_connection():
-
-    conn = sqlite3.connect(
-        DATABASE_PATH
-    )
+    """Function: get_connection"""
+    conn = sqlite3.connect(DATABASE_PATH)
 
     conn.row_factory = sqlite3.Row
 
     return conn
 
 
-
 # =========================================================
 # ALL COMPANIES
 # =========================================================
 
+
 @router.get("/companies")
-def get_companies(
-    search: str | None = None
-):
-
+def get_companies(search: str | None = None):
+    """Function: get_companies"""
     conn = get_connection()
-
 
     query = """
     SELECT
@@ -48,9 +40,7 @@ def get_companies(
     WHERE 1=1
     """
 
-
-    params=[]
-
+    params = []
 
     if search:
 
@@ -58,35 +48,21 @@ def get_companies(
         AND company_name LIKE ?
         """
 
-        params.append(
-            f"%{search}%"
-        )
+        params.append(f"%{search}%")
 
-
-    rows = conn.execute(
-        query,
-        params
-    ).fetchall()
-
+    rows = conn.execute(query, params).fetchall()
 
     conn.close()
 
-
     return [
-
         {
-            "company_name":r["company_name"],
-            "company_logo":r["company_logo"],
-            "roce_pct":r["roce_percentage"],
-            "roe_pct":r["roe_percentage"]
+            "company_name": r["company_name"],
+            "company_logo": r["company_logo"],
+            "roce_pct": r["roce_percentage"],
+            "roe_pct": r["roe_percentage"],
         }
-
         for r in rows
-
     ]
-
-
-
 
 
 # =========================================================
@@ -95,34 +71,23 @@ def get_companies(
 
 
 @router.get("/companies/{ticker}/pl")
-def get_profit_loss(
-    ticker:str
-):
+def get_profit_loss(ticker: str):
+    """Function: get_profit_loss"""
+    conn = get_connection()
 
-    conn=get_connection()
-
-
-    rows=conn.execute(
+    rows = conn.execute(
         """
         SELECT *
         FROM profitandloss
         WHERE company_id=?
         ORDER BY year
         """,
-        (ticker.upper(),)
+        (ticker.upper(),),
     ).fetchall()
-
 
     conn.close()
 
-
-    return [
-        dict(r)
-        for r in rows
-    ]
-
-
-
+    return [dict(r) for r in rows]
 
 
 # =========================================================
@@ -131,35 +96,23 @@ def get_profit_loss(
 
 
 @router.get("/companies/{ticker}/bs")
-def get_balance_sheet(
-    ticker:str
-):
+def get_balance_sheet(ticker: str):
+    """Function: get_balance_sheet"""
+    conn = get_connection()
 
-    conn=get_connection()
-
-
-    rows=conn.execute(
+    rows = conn.execute(
         """
         SELECT *
         FROM balancesheet
         WHERE company_id=?
         ORDER BY year
         """,
-        (ticker.upper(),)
+        (ticker.upper(),),
     ).fetchall()
-
-
 
     conn.close()
 
-
-    return [
-        dict(r)
-        for r in rows
-    ]
-
-
-
+    return [dict(r) for r in rows]
 
 
 # =========================================================
@@ -168,16 +121,12 @@ def get_balance_sheet(
 
 
 @router.get("/companies/{ticker}/cashflow")
-def get_cashflow(
-    ticker:str
-):
-
-    conn=get_connection()
-
-
+def get_cashflow(ticker: str):
+    """Function: get_cashflow"""
+    conn = get_connection()
 
     rows = conn.execute(
-    """
+        """
 
     SELECT
 
@@ -219,27 +168,12 @@ def get_cashflow(
 
 
     """,
-
-    (ticker.upper(),)
-
-).fetchall()
-
-
+        (ticker.upper(),),
+    ).fetchall()
 
     conn.close()
 
-
-
-    return [
-
-        dict(r)
-
-        for r in rows
-
-    ]
-
-
-
+    return [dict(r) for r in rows]
 
 
 # =========================================================
@@ -248,16 +182,11 @@ def get_cashflow(
 
 
 @router.get("/companies/{ticker}/ratios")
-def get_ratios(
-    ticker:str,
-    year:int|None=None
-):
+def get_ratios(ticker: str, year: int | None = None):
+    """Function: get_ratios"""
+    conn = get_connection()
 
-    conn=get_connection()
-
-
-
-    query="""
+    query = """
 
     SELECT *
 
@@ -267,40 +196,19 @@ def get_ratios(
 
     """
 
-
-    params=[ticker.upper()]
-
+    params = [ticker.upper()]
 
     if year:
 
-        query+=" AND year=?"
+        query += " AND year=?"
 
         params.append(year)
 
-
-
-    rows=conn.execute(
-        query,
-        params
-    ).fetchall()
-
-
+    rows = conn.execute(query, params).fetchall()
 
     conn.close()
 
-
-
-    return [
-
-        dict(r)
-
-        for r in rows
-
-    ]
-
-
-
-
+    return [dict(r) for r in rows]
 
 
 # =========================================================
@@ -309,19 +217,13 @@ def get_ratios(
 
 
 @router.get("/companies/{ticker}")
-def get_company_profile(
-    ticker:str
-):
+def get_company_profile(ticker: str):
+    """Function: get_company_profile"""
+    conn = get_connection()
 
-    conn=get_connection()
+    ticker = ticker.upper()
 
-
-
-    ticker=ticker.upper()
-
-
-
-    company=conn.execute(
+    company = conn.execute(
         """
         SELECT *
 
@@ -330,22 +232,14 @@ def get_company_profile(
         WHERE id=?
 
         """,
-        (ticker,)
+        (ticker,),
     ).fetchone()
-
-
 
     if not company:
 
-        raise HTTPException(
-            status_code=404,
-            detail="Company not found"
-        )
+        raise HTTPException(status_code=404, detail="Company not found")
 
-
-
-
-    latest=conn.execute(
+    latest = conn.execute(
         """
         SELECT *
 
@@ -358,12 +252,10 @@ def get_company_profile(
         LIMIT 1
 
         """,
-        (ticker,)
+        (ticker,),
     ).fetchone()
 
-
-
-    sector=conn.execute(
+    sector = conn.execute(
         """
         SELECT *
 
@@ -372,33 +264,16 @@ def get_company_profile(
         WHERE company_id=?
 
         """,
-        (ticker,)
+        (ticker,),
     ).fetchone()
-
-
 
     conn.close()
 
-
-
     return {
-
-        "company":dict(company),
-
-        "latest_kpis":
-        dict(latest)
-        if latest else None,
-
-
-        "sector":
-        dict(sector)
-        if sector else None
-
+        "company": dict(company),
+        "latest_kpis": dict(latest) if latest else None,
+        "sector": dict(sector) if sector else None,
     }
-
-
-
-
 
 
 # =========================================================
@@ -407,24 +282,12 @@ def get_company_profile(
 
 
 @router.get("/companies/{ticker}/tearsheet")
-def get_tearsheet(
-    ticker:str
-):
-
-    path=f"reports/tearsheets/{ticker.upper()}.pdf"
-
-
+def get_tearsheet(ticker: str):
+    """Function: get_tearsheet"""
+    path = f"reports/tearsheets/{ticker.upper()}.pdf"
 
     if not os.path.exists(path):
 
-        raise HTTPException(
-            status_code=404,
-            detail="Tearsheet not generated"
-        )
+        raise HTTPException(status_code=404, detail="Tearsheet not generated")
 
-
-
-    return FileResponse(
-        path,
-        media_type="application/pdf"
-    )
+    return FileResponse(path, media_type="application/pdf")

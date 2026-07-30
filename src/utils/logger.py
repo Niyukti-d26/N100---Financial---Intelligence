@@ -1,5 +1,4 @@
 import logging
-from pathlib import Path
 
 from src.config.settings import LOG_DIR
 

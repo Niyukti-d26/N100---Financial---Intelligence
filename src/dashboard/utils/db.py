@@ -1,8 +1,8 @@
 import sqlite3
+from pathlib import Path
+
 import pandas as pd
 import streamlit as st
-
-from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 DATABASE_PATH = ROOT / "db" / "nifty100.db"
@@ -10,13 +10,10 @@ DATABASE_PATH = ROOT / "db" / "nifty100.db"
 
 @st.cache_data(ttl=600)
 def get_companies():
-
+    """Function: get_companies"""
     conn = sqlite3.connect(DATABASE_PATH)
 
-    df = pd.read_sql(
-        "SELECT * FROM companies",
-        conn
-    )
+    df = pd.read_sql("SELECT * FROM companies", conn)
 
     conn.close()
 
@@ -25,7 +22,7 @@ def get_companies():
 
 @st.cache_data(ttl=600)
 def get_company(company_name):
-
+    """Function: get_company"""
     conn = sqlite3.connect(DATABASE_PATH)
 
     query = f"""
@@ -43,7 +40,7 @@ def get_company(company_name):
 
 @st.cache_data(ttl=600)
 def get_ratios(year=None):
-
+    """Function: get_ratios"""
     conn = sqlite3.connect(DATABASE_PATH)
 
     query = """
@@ -63,13 +60,10 @@ def get_ratios(year=None):
 
 @st.cache_data(ttl=600)
 def get_sectors():
-
+    """Function: get_sectors"""
     conn = sqlite3.connect(DATABASE_PATH)
 
-    df = pd.read_sql(
-        "SELECT * FROM sectors",
-        conn
-    )
+    df = pd.read_sql("SELECT * FROM sectors", conn)
 
     conn.close()
 
@@ -78,7 +72,7 @@ def get_sectors():
 
 @st.cache_data(ttl=600)
 def get_pl(ticker):
-
+    """Function: get_pl"""
     conn = sqlite3.connect(DATABASE_PATH)
 
     query = f"""
@@ -94,9 +88,10 @@ def get_pl(ticker):
 
     return df
 
+
 @st.cache_data(ttl=600)
 def get_screener_data():
-
+    """Function: get_screener_data"""
     conn = sqlite3.connect(DATABASE_PATH)
 
     query = """

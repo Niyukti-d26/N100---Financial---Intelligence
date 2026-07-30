@@ -1,19 +1,15 @@
-from fastapi import APIRouter, Query
-from fastapi import HTTPException
 import sqlite3
+
+from fastapi import APIRouter, HTTPException
 
 from src.config.settings import DATABASE_PATH
 
-router = APIRouter(
-    tags=["Screener"]
-)
+router = APIRouter(tags=["Screener"])
 
 
 def get_connection():
-
-    conn = sqlite3.connect(
-        DATABASE_PATH
-    )
+    """Function: get_connection"""
+    conn = sqlite3.connect(DATABASE_PATH)
 
     conn.row_factory = sqlite3.Row
 
@@ -22,46 +18,29 @@ def get_connection():
 
 @router.get("/screener")
 def get_screener(
-
     sector: str | None = None,
-
     market_cap_category: str | None = None,
-
     roe_min: float | None = None,
-
     roce_min: float | None = None,
-
     debt_to_equity_max: float | None = None,
-
-    score_min: float | None = None
-
+    score_min: float | None = None,
 ):
-
+    """Function: get_screener"""
     conn = get_connection()
 
     if roe_min is not None and roe_min < 0:
-        raise HTTPException(
-            status_code=400,
-            detail="roe_min cannot be negative"
-        )
+        raise HTTPException(status_code=400, detail="roe_min cannot be negative")
 
     if roce_min is not None and roce_min < 0:
-        raise HTTPException(
-            status_code=400,
-            detail="roce_min cannot be negative"
-        )
+        raise HTTPException(status_code=400, detail="roce_min cannot be negative")
 
     if debt_to_equity_max is not None and debt_to_equity_max < 0:
         raise HTTPException(
-            status_code=400,
-            detail="debt_to_equity_max cannot be negative"
+            status_code=400, detail="debt_to_equity_max cannot be negative"
         )
 
     if score_min is not None and score_min < 0:
-        raise HTTPException(
-            status_code=400,
-            detail="score_min cannot be negative"
-        )
+        raise HTTPException(status_code=400, detail="score_min cannot be negative")
 
     query = """
     SELECT
@@ -114,9 +93,7 @@ def get_screener(
         AND s.market_cap_category = ?
         """
 
-        params.append(
-            market_cap_category
-        )
+        params.append(market_cap_category)
 
     if roe_min is not None:
 
@@ -140,9 +117,7 @@ def get_screener(
         AND fr.debt_to_equity <= ?
         """
 
-        params.append(
-            debt_to_equity_max
-        )
+        params.append(debt_to_equity_max)
 
     if score_min is not None:
 
@@ -156,15 +131,11 @@ def get_screener(
     ORDER BY fr.composite_quality_score DESC
     """
 
-    rows = conn.execute(
-        query,
-        params
-    ).fetchall()
+    rows = conn.execute(query, params).fetchall()
 
     conn.close()
 
     return [
-
         {
             "company_id": r["id"],
             "company_name": r["company_name"],
@@ -175,9 +146,7 @@ def get_screener(
             "roe_pct": r["return_on_equity_pct"],
             "roce_pct": r["return_on_capital_employed_pct"],
             "debt_to_equity": r["debt_to_equity"],
-            "quality_score": r["composite_quality_score"]
+            "quality_score": r["composite_quality_score"],
         }
-
         for r in rows
-
     ]

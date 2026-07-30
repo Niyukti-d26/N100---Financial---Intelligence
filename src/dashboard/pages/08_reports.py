@@ -10,8 +10,7 @@ st.title("📄 Reports & Downloads")
 
 st.subheader("Available Reports")
 
-st.info(
-    """
+st.info("""
     • Screener Export CSV
 
     • Peer Comparison Analysis
@@ -21,9 +20,6 @@ st.info(
     • Valuation Summary (Coming Soon)
 
     • Capital Structure Report
-    """
-)
+    """)
 
-st.success(
-    "Reports module is ready for Sprint 4 integration."
-)
+st.success("Reports module is ready for Sprint 4 integration.")

@@ -5,13 +5,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT))
 
 import streamlit as st
-import pandas as pd
 
-from dashboard.utils.db import (
-    get_companies,
-    get_ratios,
-    get_sectors
-)
+from dashboard.utils.db import get_companies, get_ratios, get_sectors
 
 st.title("📊 Nifty 100 Analytics Dashboard")
 
@@ -22,42 +17,22 @@ sectors = get_sectors()
 col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
-    st.metric(
-        "Average ROE",
-        round(companies["roe_percentage"].mean(), 2)
-    )
+    st.metric("Average ROE", round(companies["roe_percentage"].mean(), 2))
 
 with col2:
-    st.metric(
-        "Median D/E",
-        round(ratios["debt_to_equity"].median(), 2)
-    )
+    st.metric("Median D/E", round(ratios["debt_to_equity"].median(), 2))
 
 with col3:
-    st.metric(
-        "Companies",
-        companies["id"].nunique()
-    )
+    st.metric("Companies", companies["id"].nunique())
 
 with col4:
-    st.metric(
-        "Median Revenue CAGR",
-        round(
-            ratios["revenue_cagr_5yr"].median(),
-            2
-        )
-    )
+    st.metric("Median Revenue CAGR", round(ratios["revenue_cagr_5yr"].median(), 2))
 
 with col5:
 
-    debt_free = ratios[
-        ratios["debt_to_equity"] <= 0
-    ]["company_id"].nunique()
+    debt_free = ratios[ratios["debt_to_equity"] <= 0]["company_id"].nunique()
 
-    st.metric(
-        "Debt Free Companies",
-        debt_free
-    )
+    st.metric("Debt Free Companies", debt_free)
 
 st.divider()
 
@@ -67,37 +42,17 @@ sector_counts = (
     sectors.groupby("broad_sector")
     .size()
     .reset_index(name="count")
-    .sort_values(
-        "count",
-        ascending=False
-    )
+    .sort_values("count", ascending=False)
 )
 
-st.dataframe(
-    sector_counts,
-    use_container_width=True
-)
+st.dataframe(sector_counts, use_container_width=True)
 
 st.divider()
 
 st.subheader("Top Companies")
 
-top_companies = (
-    companies[
-        [
-            "id",
-            "company_name",
-            "roe_percentage",
-            "roce_percentage"
-        ]
-    ]
-    .sort_values(
-        "roe_percentage",
-        ascending=False
-    )
-)
+top_companies = companies[
+    ["id", "company_name", "roe_percentage", "roce_percentage"]
+].sort_values("roe_percentage", ascending=False)
 
-st.dataframe(
-    top_companies.head(10),
-    use_container_width=True
-)
+st.dataframe(top_companies.head(10), use_container_width=True)

@@ -1,19 +1,15 @@
-from fastapi import APIRouter, HTTPException
 import sqlite3
+
+from fastapi import APIRouter, HTTPException
 
 from src.config.settings import DATABASE_PATH
 
-
-router = APIRouter(
-    tags=["Sectors"]
-)
+router = APIRouter(tags=["Sectors"])
 
 
 def get_connection():
-
-    conn = sqlite3.connect(
-        DATABASE_PATH
-    )
+    """Function: get_connection"""
+    conn = sqlite3.connect(DATABASE_PATH)
 
     conn.row_factory = sqlite3.Row
 
@@ -24,13 +20,13 @@ def get_connection():
 # ALL SECTORS SUMMARY
 # ---------------------------------------------------------
 
+
 @router.get("/sectors")
 def get_all_sectors():
-
+    """Function: get_all_sectors"""
     conn = get_connection()
 
-    rows = conn.execute(
-        """
+    rows = conn.execute("""
         SELECT
             s.broad_sector,
             COUNT(DISTINCT s.company_id) AS company_count,
@@ -44,8 +40,7 @@ def get_all_sectors():
         GROUP BY s.broad_sector
 
         ORDER BY s.broad_sector
-        """
-    ).fetchall()
+        """).fetchall()
 
     conn.close()
 
@@ -54,7 +49,7 @@ def get_all_sectors():
             "sector": row["broad_sector"],
             "company_count": row["company_count"],
             "average_roe_pct": row["average_roe"],
-            "average_debt_to_equity": row["average_de"]
+            "average_debt_to_equity": row["average_de"],
         }
         for row in rows
     ]
@@ -64,9 +59,10 @@ def get_all_sectors():
 # SECTOR COMPANIES
 # ---------------------------------------------------------
 
+
 @router.get("/sectors/{sector_name}/companies")
 def get_sector_companies(sector_name: str):
-
+    """Function: get_sector_companies"""
     conn = get_connection()
 
     rows = conn.execute(
@@ -103,22 +99,16 @@ def get_sector_companies(sector_name: str):
 
         ORDER BY s.index_weight_pct DESC
         """,
-        (sector_name,)
+        (sector_name,),
     ).fetchall()
 
     conn.close()
 
     if not rows:
-        raise HTTPException(
-            status_code=404,
-            detail="Sector not found"
-        )
+        raise HTTPException(status_code=404, detail="Sector not found")
 
     return {
         "sector": sector_name,
         "company_count": len(rows),
-        "companies": [
-            dict(row)
-            for row in rows
-        ]
+        "companies": [dict(row) for row in rows],
     }

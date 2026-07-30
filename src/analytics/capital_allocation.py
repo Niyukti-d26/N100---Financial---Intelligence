@@ -1,15 +1,16 @@
 import sqlite3
+
 import pandas as pd
 
-from src.config.settings import DATABASE_PATH
 from src.analytics.cashflow_kpis import (
     capital_allocation_pattern,
     cfo_quality_score,
 )
+from src.config.settings import DATABASE_PATH
 
 
 def build_capital_allocation():
-
+    """Function: build_capital_allocation"""
     conn = sqlite3.connect(DATABASE_PATH)
 
     cashflow = pd.read_sql(
@@ -51,28 +52,21 @@ def build_capital_allocation():
     pl["year"] = pl["year"].astype(int)
     ratios["year"] = ratios["year"].astype(int)
 
-    df = (
-        cashflow
-        .merge(
-            pl,
-            on=["company_id", "year"],
-            how="left",
-        )
-        .merge(
-            ratios,
-            on=["company_id", "year"],
-            how="left",
-        )
+    df = cashflow.merge(
+        pl,
+        on=["company_id", "year"],
+        how="left",
+    ).merge(
+        ratios,
+        on=["company_id", "year"],
+        how="left",
     )
 
     records = []
 
     for _, row in df.iterrows():
 
-        quality = cfo_quality_score(
-            row["operating_activity"],
-            row["net_profit"]
-        )
+        quality = cfo_quality_score(row["operating_activity"], row["net_profit"])
 
         pattern = capital_allocation_pattern(
             row["operating_activity"],
@@ -105,10 +99,7 @@ def build_capital_allocation():
 
     conn.close()
 
-    print(
-        "Capital Allocation Rows:",
-        len(output)
-    )
+    print("Capital Allocation Rows:", len(output))
 
 
 if __name__ == "__main__":

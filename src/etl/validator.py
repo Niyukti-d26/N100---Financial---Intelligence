@@ -1,8 +1,7 @@
+
 import pandas as pd
-from pathlib import Path
 
-from src.config.settings import PROCESSED_DATA_DIR, OUTPUT_DIR
-
+from src.config.settings import OUTPUT_DIR, PROCESSED_DATA_DIR
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -12,14 +11,14 @@ failures = []
 
 
 def load_data():
-
+    """Function: load_data"""
     for file in PROCESSED_DATA_DIR.glob("*.csv"):
 
         datasets[file.stem] = pd.read_csv(file)
 
 
 def add_failure(dataset, rule, severity, row_id, message):
-
+    """Function: add_failure"""
     failures.append(
         {
             "dataset": dataset,
@@ -29,8 +28,10 @@ def add_failure(dataset, rule, severity, row_id, message):
             "message": message,
         }
     )
-def dq01_primary_key():
 
+
+def dq01_primary_key():
+    """Function: dq01_primary_key"""
     print("\nRunning DQ-01 : Primary Key Check")
 
     for dataset_name, df in datasets.items():
@@ -50,9 +51,11 @@ def dq01_primary_key():
                 "Duplicate Primary Key",
             )
 
-    print("DQ-01 Completed") 
-def dq02_company_year():
+    print("DQ-01 Completed")
 
+
+def dq02_company_year():
+    """Function: dq02_company_year"""
     print("\nRunning DQ-02 : Company-Year Uniqueness")
 
     tables = [
@@ -94,15 +97,13 @@ def dq02_company_year():
             )
 
     print("DQ-02 Completed")
-def dq03_foreign_key():
 
+
+def dq03_foreign_key():
+    """Function: dq03_foreign_key"""
     print("\nRunning DQ-03 : Foreign Key Integrity")
 
-    company_ids = set(
-        datasets["companies"]["id"]
-        .astype(str)
-        .str.strip()
-    )
+    company_ids = set(datasets["companies"]["id"].astype(str).str.strip())
 
     child_tables = [
         "profitandloss",
@@ -128,12 +129,7 @@ def dq03_foreign_key():
         if "company_id" not in df.columns:
             continue
 
-        invalid_rows = df[
-            ~df["company_id"]
-            .astype(str)
-            .str.strip()
-            .isin(company_ids)
-        ]
+        invalid_rows = df[~df["company_id"].astype(str).str.strip().isin(company_ids)]
 
         for _, row in invalid_rows.iterrows():
 
@@ -146,8 +142,10 @@ def dq03_foreign_key():
             )
 
     print("DQ-03 Completed")
-def dq04_balance_sheet():
 
+
+def dq04_balance_sheet():
+    """Function: dq04_balance_sheet"""
     print("\nRunning DQ-04 : Balance Sheet Validation")
 
     if "balancesheet" not in datasets:
@@ -190,13 +188,7 @@ def dq04_balance_sheet():
 
     tolerance = df["total_assets"] * 0.01
 
-    invalid = df[
-        abs(
-            df["total_assets"]
-            - df["total_liabilities"]
-        )
-        > tolerance
-    ]
+    invalid = df[abs(df["total_assets"] - df["total_liabilities"]) > tolerance]
 
     for _, row in invalid.iterrows():
 
@@ -213,8 +205,10 @@ def dq04_balance_sheet():
         )
 
     print("DQ-04 Completed")
-def dq05_opm():
 
+
+def dq05_opm():
+    """Function: dq05_opm"""
     print("\nRunning DQ-05 : Operating Profit Margin Check")
 
     if "profitandloss" not in datasets:
@@ -245,20 +239,10 @@ def dq05_opm():
 
     df = df[df["sales"] != 0]
 
-    df["calculated_opm"] = (
-        df["operating_profit"] / df["sales"]
-    ) * 100
+    df["calculated_opm"] = (df["operating_profit"] / df["sales"]) * 100
 
-    df = df[
-    (df["opm_percentage"] >= -100) &
-    (df["opm_percentage"] <= 100)
-    ]
-    invalid = df[
-        abs(
-            df["calculated_opm"] -
-            df["opm_percentage"]
-        ) > 1
-    ]
+    df = df[(df["opm_percentage"] >= -100) & (df["opm_percentage"] <= 100)]
+    invalid = df[abs(df["calculated_opm"] - df["opm_percentage"]) > 1]
 
     for _, row in invalid.iterrows():
 
@@ -275,8 +259,10 @@ def dq05_opm():
         )
 
     print("DQ-05 Completed")
-def dq06_positive_sales():
 
+
+def dq06_positive_sales():
+    """Function: dq06_positive_sales"""
     print("\nRunning DQ-06 : Positive Sales Check")
 
     if "profitandloss" not in datasets:
@@ -305,8 +291,10 @@ def dq06_positive_sales():
         )
 
     print("DQ-06 Completed")
-def dq07_tax_percentage():
 
+
+def dq07_tax_percentage():
+    """Function: dq07_tax_percentage"""
     print("\nRunning DQ-07 : Tax Percentage Check")
 
     if "profitandloss" not in datasets:
@@ -330,10 +318,7 @@ def dq07_tax_percentage():
         errors="coerce",
     )
 
-    invalid = df[
-        (df["tax_percentage"] < 0) |
-        (df["tax_percentage"] > 100)
-    ]
+    invalid = df[(df["tax_percentage"] < 0) | (df["tax_percentage"] > 100)]
 
     for _, row in invalid.iterrows():
 
@@ -342,12 +327,14 @@ def dq07_tax_percentage():
             "DQ-07",
             "WARNING",
             row["id"],
-            f"{row['company_id']} ({int(row['year'])}) Invalid Tax Percentage"
+            f"{row['company_id']} ({int(row['year'])}) Invalid Tax Percentage",
         )
 
     print("DQ-07 Completed")
-def dq08_net_profit():
 
+
+def dq08_net_profit():
+    """Function: dq08_net_profit"""
     print("\nRunning DQ-08 : Net Profit Check")
 
     if "profitandloss" not in datasets:
@@ -377,17 +364,11 @@ def dq08_net_profit():
         errors="coerce",
     )
 
-    invalid = df[
-        df["net_profit"] > df["profit_before_tax"]
-    ]
+    invalid = df[df["net_profit"] > df["profit_before_tax"]]
 
     for _, row in invalid.iterrows():
 
-        year = (
-            "Unknown"
-            if pd.isna(row["year"])
-            else int(row["year"])
-        )
+        year = "Unknown" if pd.isna(row["year"]) else int(row["year"])
 
         add_failure(
             "profitandloss",
@@ -398,8 +379,10 @@ def dq08_net_profit():
         )
 
     print("DQ-08 Completed")
-def dq09_dividend_payout():
 
+
+def dq09_dividend_payout():
+    """Function: dq09_dividend_payout"""
     print("\nRunning DQ-09 : Dividend Payout Check")
 
     if "profitandloss" not in datasets:
@@ -415,18 +398,11 @@ def dq09_dividend_payout():
         errors="coerce",
     )
 
-    invalid = df[
-        (df["dividend_payout"] < 0)
-        | (df["dividend_payout"] > 100)
-    ]
+    invalid = df[(df["dividend_payout"] < 0) | (df["dividend_payout"] > 100)]
 
     for _, row in invalid.iterrows():
 
-        year = (
-            "Unknown"
-            if pd.isna(row["year"])
-            else int(row["year"])
-        )
+        year = "Unknown" if pd.isna(row["year"]) else int(row["year"])
 
         add_failure(
             "profitandloss",
@@ -437,8 +413,10 @@ def dq09_dividend_payout():
         )
 
     print("DQ-09 Completed")
-def dq10_eps_check():
 
+
+def dq10_eps_check():
+    """Function: dq10_eps_check"""
     print("\nRunning DQ-10 : EPS Validation")
 
     if "profitandloss" not in datasets:
@@ -468,18 +446,11 @@ def dq10_eps_check():
         errors="coerce",
     )
 
-    invalid = df[
-        (df["net_profit"] != 0)
-        & (df["eps"] == 0)
-    ]
+    invalid = df[(df["net_profit"] != 0) & (df["eps"] == 0)]
 
     for _, row in invalid.iterrows():
 
-        year = (
-            "Unknown"
-            if pd.isna(row["year"])
-            else int(row["year"])
-        )
+        year = "Unknown" if pd.isna(row["year"]) else int(row["year"])
 
         add_failure(
             "profitandloss",
@@ -490,8 +461,10 @@ def dq10_eps_check():
         )
 
     print("DQ-10 Completed")
-def dq11_cashflow():
 
+
+def dq11_cashflow():
+    """Function: dq11_cashflow"""
     print("\nRunning DQ-11 : Cash Flow Validation")
 
     if "cashflow" not in datasets:
@@ -519,14 +492,10 @@ def dq11_cashflow():
     df = df.dropna()
 
     calculated = (
-        df["operating_activity"]
-        + df["investing_activity"]
-        + df["financing_activity"]
+        df["operating_activity"] + df["investing_activity"] + df["financing_activity"]
     )
 
-    invalid = df[
-        abs(calculated - df["net_cash_flow"]) > 1
-    ]
+    invalid = df[abs(calculated - df["net_cash_flow"]) > 1]
 
     for _, row in invalid.iterrows():
 
@@ -541,8 +510,10 @@ def dq11_cashflow():
         )
 
     print("DQ-11 Completed")
-def dq12_website():
 
+
+def dq12_website():
+    """Function: dq12_website"""
     print("\nRunning DQ-12 : Website URL Check")
 
     if "companies" not in datasets:
@@ -550,9 +521,7 @@ def dq12_website():
 
     df = datasets["companies"].copy()
 
-    invalid = df[
-        ~df["website"].astype(str).str.startswith(("http://", "https://"))
-    ]
+    invalid = df[~df["website"].astype(str).str.startswith(("http://", "https://"))]
 
     for _, row in invalid.iterrows():
 
@@ -565,8 +534,10 @@ def dq12_website():
         )
 
     print("DQ-12 Completed")
-def dq13_annual_report():
 
+
+def dq13_annual_report():
+    """Function: dq13_annual_report"""
     print("\nRunning DQ-13 : Annual Report URL Check")
 
     if "documents" not in datasets:
@@ -589,8 +560,10 @@ def dq13_annual_report():
         )
 
     print("DQ-13 Completed")
-def dq14_market_cap():
 
+
+def dq14_market_cap():
+    """Function: dq14_market_cap"""
     print("\nRunning DQ-14 : Market Cap Check")
 
     if "market_cap" not in datasets:
@@ -603,9 +576,7 @@ def dq14_market_cap():
         errors="coerce",
     )
 
-    invalid = df[
-        df["market_cap_crore"] <= 0
-    ]
+    invalid = df[df["market_cap_crore"] <= 0]
 
     for _, row in invalid.iterrows():
 
@@ -618,8 +589,10 @@ def dq14_market_cap():
         )
 
     print("DQ-14 Completed")
-def dq15_stock_prices():
 
+
+def dq15_stock_prices():
+    """Function: dq15_stock_prices"""
     print("\nRunning DQ-15 : Stock Price Validation")
 
     if "stock_prices" not in datasets:
@@ -637,9 +610,7 @@ def dq15_stock_prices():
     for col in cols:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    invalid = df[
-        (df["high_price"] < df["low_price"])
-    ]
+    invalid = df[(df["high_price"] < df["low_price"])]
 
     for _, row in invalid.iterrows():
 
@@ -652,8 +623,10 @@ def dq15_stock_prices():
         )
 
     print("DQ-15 Completed")
-def dq16_roe():
 
+
+def dq16_roe():
+    """Function: dq16_roe"""
     print("\nRunning DQ-16 : ROE Validation")
 
     if "companies" not in datasets:
@@ -666,10 +639,7 @@ def dq16_roe():
         errors="coerce",
     )
 
-    invalid = df[
-        (df["roe_percentage"] < -100)
-        | (df["roe_percentage"] > 100)
-    ]
+    invalid = df[(df["roe_percentage"] < -100) | (df["roe_percentage"] > 100)]
 
     for _, row in invalid.iterrows():
 
@@ -682,8 +652,10 @@ def dq16_roe():
         )
 
     print("DQ-16 Completed")
-def run_validation():
 
+
+def run_validation():
+    """Function: run_validation"""
     load_data()
 
     dq01_primary_key()

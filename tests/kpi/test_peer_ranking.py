@@ -29,8 +29,6 @@ def test_metric_ranking():
 
         assert percentile in df.columns
 
-        assert (
-            df[percentile].dropna().between(0, 100)
-        ).all()
+        assert (df[percentile].dropna().between(0, 100)).all()
 
     engine.close()

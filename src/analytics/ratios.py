@@ -7,7 +7,9 @@ Day 08
 Contains reusable functions for calculating
 profitability ratios.
 """
-import math
+
+
+
 def net_profit_margin(
     net_profit,
     sales,
@@ -24,6 +26,7 @@ def net_profit_margin(
 
     return (net_profit / sales) * 100
 
+
 def operating_profit_margin(
     operating_profit,
     sales,
@@ -39,6 +42,7 @@ def operating_profit_margin(
         return None
 
     return (operating_profit / sales) * 100
+
 
 def opm_cross_check(
     calculated_opm,
@@ -57,6 +61,7 @@ def opm_cross_check(
 
     return abs(calculated_opm - source_opm) > 1
 
+
 def return_on_equity(
     net_profit,
     equity,
@@ -72,6 +77,7 @@ def return_on_equity(
         return None
 
     return (net_profit / denominator) * 100
+
 
 def return_on_capital_employed(
     ebit,
@@ -90,6 +96,7 @@ def return_on_capital_employed(
 
     return (ebit / capital) * 100
 
+
 def return_on_assets(
     net_profit,
     total_assets,
@@ -102,6 +109,7 @@ def return_on_assets(
         return None
 
     return (net_profit / total_assets) * 100
+
 
 def debt_to_equity(
     borrowings,
@@ -122,6 +130,7 @@ def debt_to_equity(
 
     return borrowings / denominator
 
+
 def high_leverage_flag(
     debt_to_equity_ratio,
     broad_sector,
@@ -139,6 +148,7 @@ def high_leverage_flag(
 
     return debt_to_equity_ratio > 5
 
+
 def interest_coverage_ratio(
     operating_profit,
     other_income,
@@ -151,10 +161,8 @@ def interest_coverage_ratio(
     if interest == 0:
         return None
 
-    return (
-        operating_profit +
-        other_income
-    ) / interest
+    return (operating_profit + other_income) / interest
+
 
 def interest_coverage_label(
     interest,
@@ -169,6 +177,7 @@ def interest_coverage_label(
 
     return ""
 
+
 def icr_warning(
     interest_coverage,
 ):
@@ -181,6 +190,7 @@ def icr_warning(
 
     return interest_coverage < 1.5
 
+
 def net_debt(
     borrowings,
     investments,
@@ -190,6 +200,7 @@ def net_debt(
     """
 
     return borrowings - investments
+
 
 def asset_turnover(
     sales,
@@ -203,4 +214,3 @@ def asset_turnover(
         return None
 
     return sales / total_assets
-

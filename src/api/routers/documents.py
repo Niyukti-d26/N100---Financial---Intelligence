@@ -1,19 +1,15 @@
-from fastapi import APIRouter, HTTPException
 import sqlite3
+
+from fastapi import APIRouter, HTTPException
 
 from src.config.settings import DATABASE_PATH
 
-
-router = APIRouter(
-    tags=["Documents"]
-)
+router = APIRouter(tags=["Documents"])
 
 
 def get_connection():
-
-    conn = sqlite3.connect(
-        DATABASE_PATH
-    )
+    """Function: get_connection"""
+    conn = sqlite3.connect(DATABASE_PATH)
 
     conn.row_factory = sqlite3.Row
 
@@ -22,7 +18,7 @@ def get_connection():
 
 @router.get("/companies/{ticker}/documents")
 def documents(ticker: str):
-
+    """Function: documents"""
     conn = get_connection()
 
     rows = conn.execute(
@@ -35,19 +31,13 @@ def documents(ticker: str):
         WHERE company_id=?
         ORDER BY year DESC
         """,
-        (ticker.upper(),)
+        (ticker.upper(),),
     ).fetchall()
 
     conn.close()
 
     if not rows:
 
-        raise HTTPException(
-            status_code=404,
-            detail="Documents not found"
-        )
+        raise HTTPException(status_code=404, detail="Documents not found")
 
-    return [
-        dict(r)
-        for r in rows
-    ]
+    return [dict(r) for r in rows]

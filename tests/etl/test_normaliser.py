@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from src.etl.normaliser import normalize_year, normalize_ticker
+from src.etl.normaliser import normalize_ticker, normalize_year
 
 
 @pytest.mark.parametrize(

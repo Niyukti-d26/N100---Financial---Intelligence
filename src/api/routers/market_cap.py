@@ -1,14 +1,14 @@
-from fastapi import APIRouter, HTTPException
 import sqlite3
+
+from fastapi import APIRouter, HTTPException
 
 from src.config.settings import DATABASE_PATH
 
-router = APIRouter(
-    tags=["Valuation"]
-)
+router = APIRouter(tags=["Valuation"])
 
 
 def get_connection():
+    """Function: get_connection"""
     return sqlite3.connect(DATABASE_PATH)
 
 
@@ -16,9 +16,10 @@ def get_connection():
 # MARKET CAP / VALUATION HISTORY
 # ---------------------------------------------------------
 
+
 @router.get("/market-cap/{ticker}")
 def get_market_cap(ticker: str):
-
+    """Function: get_market_cap"""
     conn = get_connection()
     conn.row_factory = sqlite3.Row
 
@@ -38,33 +39,25 @@ def get_market_cap(ticker: str):
         WHERE company_id = ?
         ORDER BY year ASC
         """,
-        (ticker,)
+        (ticker,),
     ).fetchall()
 
     conn.close()
 
     if not rows:
-        raise HTTPException(
-            status_code=404,
-            detail="Market cap data not found"
-        )
+        raise HTTPException(status_code=404, detail="Market cap data not found")
 
-    return {
-        "ticker": ticker,
-        "valuation_history": [
-            dict(row)
-            for row in rows
-        ]
-    }
+    return {"ticker": ticker, "valuation_history": [dict(row) for row in rows]}
 
 
 # ---------------------------------------------------------
 # LATEST VALUATION SNAPSHOT
 # ---------------------------------------------------------
 
+
 @router.get("/market-cap/{ticker}/latest")
 def get_latest_market_cap(ticker: str):
-
+    """Function: get_latest_market_cap"""
     conn = get_connection()
     conn.row_factory = sqlite3.Row
 
@@ -85,15 +78,12 @@ def get_latest_market_cap(ticker: str):
         ORDER BY year DESC
         LIMIT 1
         """,
-        (ticker,)
+        (ticker,),
     ).fetchone()
 
     conn.close()
 
     if not row:
-        raise HTTPException(
-            status_code=404,
-            detail="Market cap data not found"
-        )
+        raise HTTPException(status_code=404, detail="Market cap data not found")
 
     return dict(row)

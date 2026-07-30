@@ -8,10 +8,7 @@ def get_connection():
     Create SQLite database connection.
     """
 
-    conn = sqlite3.connect(
-        DATABASE_PATH,
-        check_same_thread=False
-    )
+    conn = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
 
     conn.row_factory = sqlite3.Row
 

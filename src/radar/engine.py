@@ -1,9 +1,9 @@
 import sqlite3
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from src.config.settings import DATABASE_PATH
 
@@ -24,57 +24,57 @@ class RadarEngine:
         self.df = self.load_data()
 
     def load_data(self):
+        """Function: load_data"""
         ratios = pd.read_sql(
-        """
+            """
         SELECT *
         FROM financial_ratios
         """,
-        self.conn,
-    )
+            self.conn,
+        )
 
         peers = pd.read_sql(
-        """
+            """
         SELECT
             company_id,
             peer_group_name,
             is_benchmark
         FROM peer_groups
         """,
-        self.conn,
-    )
+            self.conn,
+        )
 
         df = ratios.merge(
-        peers,
-        on="company_id",
-        how="left",
-    )
+            peers,
+            on="company_id",
+            how="left",
+        )
 
         latest_year = df["year"].max()
 
-        df = df[
-        df["year"] == latest_year
-    ].copy()
+        df = df[df["year"] == latest_year].copy()
 
         return df
 
     def get_metrics(self):
+        """Function: get_metrics"""
         return [
-        "return_on_equity_pct",
-        "return_on_capital_employed_pct",
-        "net_profit_margin_pct",
-        "debt_to_equity",
-        "fcf_conversion_pct",
-        "pat_cagr_5yr",
-        "revenue_cagr_5yr",
-        "composite_quality_score",
-    ]
+            "return_on_equity_pct",
+            "return_on_capital_employed_pct",
+            "net_profit_margin_pct",
+            "debt_to_equity",
+            "fcf_conversion_pct",
+            "pat_cagr_5yr",
+            "revenue_cagr_5yr",
+            "composite_quality_score",
+        ]
 
     def get_company(self, company_id):
-        return self.df[
-        self.df["company_id"] == company_id
-    ].iloc[0]
+        """Function: get_company"""
+        return self.df[self.df["company_id"] == company_id].iloc[0]
 
     def plot_radar(self, company_id):
+        """Function: plot_radar"""
         metrics = self.get_metrics()
 
         company = self.get_company(company_id)
@@ -85,64 +85,61 @@ class RadarEngine:
             peer_average = self.df[metrics].mean()
 
         else:
-            peer_average = (
-            self.df[
-                self.df["peer_group_name"] == peer_group
-            ][metrics]
-            .mean()
-        )
+            peer_average = self.df[self.df["peer_group_name"] == peer_group][
+                metrics
+            ].mean()
 
         company_values = company[metrics].fillna(0).tolist()
 
         peer_values = peer_average.fillna(0).tolist()
 
         labels = [
-        "ROE",
-        "ROCE",
-        "NPM",
-        "D/E",
-        "FCF",
-        "PAT CAGR",
-        "Revenue CAGR",
-        "Composite",
-    ]
+            "ROE",
+            "ROCE",
+            "NPM",
+            "D/E",
+            "FCF",
+            "PAT CAGR",
+            "Revenue CAGR",
+            "Composite",
+        ]
 
         angles = np.linspace(
-        0,
-        2 * np.pi,
-        len(labels),
-        endpoint=False,
-    ).tolist()
+            0,
+            2 * np.pi,
+            len(labels),
+            endpoint=False,
+        ).tolist()
 
         company_values += company_values[:1]
         peer_values += peer_values[:1]
         angles += angles[:1]
 
         fig, ax = plt.subplots(
-        figsize=(7, 7),
-        subplot_kw={"polar": True},
-    )
+            figsize=(7, 7),
+            subplot_kw={"polar": True},
+        )
 
         ax.plot(
-        angles,
-        company_values,
-        linewidth=2,
-        label=company_id,
-    )
+            angles,
+            company_values,
+            linewidth=2,
+            label=company_id,
+        )
 
         ax.fill(
-        angles,
-        company_values,
-        alpha=0.25,
-    )
+            angles,
+            company_values,
+            alpha=0.25,
+        )
 
         ax.plot(
-        angles,
-        peer_values,
-        linestyle="--",
-        linewidth=2,
-        label="Peer Average",
-    )
+            angles,
+            peer_values,
+            linestyle="--",
+            linewidth=2,
+            label="Peer Average",
+        )
 
         ax.set_xticks(angles[:-1])
 
@@ -152,25 +149,23 @@ class RadarEngine:
 
         ax.legend(loc="upper right")
 
-        output_file = (
-        self.output_dir /
-        f"{company_id}_radar.png"
-    )
+        output_file = self.output_dir / f"{company_id}_radar.png"
 
         plt.savefig(
-        output_file,
-        dpi=300,
-        bbox_inches="tight",
-    )
+            output_file,
+            dpi=300,
+            bbox_inches="tight",
+        )
 
         plt.close(fig)
 
         return output_file
 
     def generate_all(self):
+        """Function: generate_all"""
         for company_id in self.df["company_id"].unique():
             try:
-               self.plot_radar(company_id)
+                self.plot_radar(company_id)
 
             except Exception as e:
                 print(f"Skipped {company_id}: {e}")
@@ -178,4 +173,5 @@ class RadarEngine:
         print("All radar charts generated.")
 
     def close(self):
-       self.conn.close()
+        """Function: close"""
+        self.conn.close()

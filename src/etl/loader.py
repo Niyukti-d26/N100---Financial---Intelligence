@@ -1,24 +1,23 @@
 import sqlite3
+
 import pandas as pd
 
 from src.config.settings import (
-    RAW_DATA_DIR,
-    PROCESSED_DATA_DIR,
-    OUTPUT_DIR,
     DATABASE_PATH,
-    SCHEMA_PATH,
     HEADER_ROWS,
+    OUTPUT_DIR,
+    PROCESSED_DATA_DIR,
+    RAW_DATA_DIR,
+    SCHEMA_PATH,
 )
-
 from src.etl.normaliser import normalize
 from src.utils.logger import logger
 
 
 def clean_columns(df):
-
+    """Function: clean_columns"""
     df.columns = (
-        df.columns
-        .str.strip()
+        df.columns.str.strip()
         .str.lower()
         .str.replace(" ", "_")
         .str.replace("(", "", regex=False)
@@ -31,7 +30,7 @@ def clean_columns(df):
 
 
 def load_file(filename):
-
+    """Function: load_file"""
     filepath = RAW_DATA_DIR / filename
 
     header = HEADER_ROWS.get(filename, 0)
@@ -57,15 +56,16 @@ def load_file(filename):
 
 
 def save_processed(df, filename):
-
+    """Function: save_processed"""
     PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     output_file = PROCESSED_DATA_DIR / f"{filename}.csv"
 
     df.to_csv(output_file, index=False)
 
-def create_database():
 
+def create_database():
+    """Function: create_database"""
     if DATABASE_PATH.exists():
         DATABASE_PATH.unlink()
 
@@ -82,8 +82,9 @@ def create_database():
 
     return conn
 
-def filter_foreign_keys(df, companies_df, table):
 
+def filter_foreign_keys(df, companies_df, table):
+    """Function: filter_foreign_keys"""
     if "company_id" not in df.columns:
         return df, 0
 
@@ -95,30 +96,28 @@ def filter_foreign_keys(df, companies_df, table):
 
     if len(invalid) > 0:
 
-        print(
-            f"{table:<20}"
-            f"Rejected {len(invalid)} rows (Invalid company_id)"
-        )
+        print(f"{table:<20}" f"Rejected {len(invalid)} rows (Invalid company_id)")
 
     return valid, len(invalid)
 
-def load_into_database(conn, datasets):
 
+def load_into_database(conn, datasets):
+    """Function: load_into_database"""
     load_audit = []
 
     load_order = [
-    "companies",
-    "sectors",
-    "analysis",
-    "profitandloss",
-    "balancesheet",
-    "cashflow",
-    "documents",
-    "prosandcons",
-    "financial_ratios",
-    "market_cap",
-    "peer_groups",
-    "stock_prices",
+        "companies",
+        "sectors",
+        "analysis",
+        "profitandloss",
+        "balancesheet",
+        "cashflow",
+        "documents",
+        "prosandcons",
+        "financial_ratios",
+        "market_cap",
+        "peer_groups",
+        "stock_prices",
     ]
 
     for table in load_order:
@@ -146,13 +145,9 @@ def load_into_database(conn, datasets):
 
             conn.commit()
 
-            print(
-                conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()
-            )
+            print(conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone())
 
             print(f"{table:<20} Loaded {len(df)} rows")
-
-        
 
         except Exception as e:
             import traceback
@@ -177,7 +172,6 @@ def load_into_database(conn, datasets):
             }
         )
 
-
     audit_df = pd.DataFrame(load_audit)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -194,11 +188,10 @@ def load_into_database(conn, datasets):
 
     return audit_df
 
-def check_foreign_keys(conn):
 
-    result = conn.execute(
-        "PRAGMA foreign_key_check;"
-    ).fetchall()
+def check_foreign_keys(conn):
+    """Function: check_foreign_keys"""
+    result = conn.execute("PRAGMA foreign_key_check;").fetchall()
 
     print("\n")
     print("=" * 80)
@@ -216,8 +209,9 @@ def check_foreign_keys(conn):
 
     print("=" * 80)
 
-def load_all():
 
+def load_all():
+    """Function: load_all"""
     datasets = {}
 
     for file in RAW_DATA_DIR.glob("*.xlsx"):
@@ -232,8 +226,9 @@ def load_all():
 
     return datasets
 
-def print_database_summary(conn):
 
+def print_database_summary(conn):
+    """Function: print_database_summary"""
     print("\n")
     print("=" * 80)
     print("DATABASE SUMMARY")
@@ -256,9 +251,7 @@ def print_database_summary(conn):
 
     for table in tables:
 
-        count = conn.execute(
-            f"SELECT COUNT(*) FROM {table}"
-        ).fetchone()[0]
+        count = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
 
         print(f"{table:<20}{count}")
 
@@ -278,11 +271,7 @@ if __name__ == "__main__":
 
     for name, df in datasets.items():
 
-        print(
-            f"{name:<25}"
-            f"Rows: {df.shape[0]:5}"
-            f" Columns: {df.shape[1]:2}"
-        )
+        print(f"{name:<25}" f"Rows: {df.shape[0]:5}" f" Columns: {df.shape[1]:2}")
 
     # ============================================================
     # STEP 2 : Create SQLite Database
